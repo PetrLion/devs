@@ -9,6 +9,9 @@
 git clone https://github.com/YourUsername/devsecops-demo.git
 cd devsecops-demo
 
+# Створити необхідні гілки (dev, stage, main)
+./setup-branches.sh
+
 # Переконайтеся, що знаходитеся на гілці main
 git checkout main
 ```

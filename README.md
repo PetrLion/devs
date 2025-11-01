@@ -1,5 +1,17 @@
 # DevSecOps Demo Repository
 
+## 🚀 Швидкий старт
+
+```bash
+# Створити три гілки (dev, stage, main)
+./setup-branches.sh
+
+# Зібрати проект
+make build
+```
+
+Детальні інструкції: [SETUP.md](SETUP.md) | [QUICK_START.md](QUICK_START.md)
+
 ## Опис
 
 - Імпорт уразливого прикладу коду (`src/41_scan_stream_default.py`).
@@ -19,7 +31,15 @@
 
 ### 2) Гілки та політики
 
-- Створити гілки: `dev`, `stage`, `main`.
+**Швидке налаштування гілок:**
+```bash
+# Запустіть скрипт для автоматичного створення гілок
+./setup-branches.sh
+```
+
+Або вручну створити гілки: `dev`, `stage`, `main`.
+
+**Branch protection для `main`:**
 - Увімкнути Branch protection для `main`:
   - Require a pull request before merging.
   - Require status checks to pass (build, scorecard, grype).
