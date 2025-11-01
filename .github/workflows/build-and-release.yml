@@ -35,7 +35,6 @@ jobs:
         run: |
           cd devsec1-main
           make build
-        continue-on-error: true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -101,8 +100,6 @@ jobs:
           cosign-release: 'v2.2.0'
 
       - name: Sign artifacts with Cosign (Keyless OIDC)
-        env:
-          COSIGN_EXPERIMENTAL: 1
         run: |
           for file in build/*; do
             if [ -f "$file" ]; then
@@ -114,11 +111,13 @@ jobs:
             fi
           done
 
-      - name: Upload Cosign signatures
+      - name: Upload Cosign signatures and certificates
         uses: actions/upload-artifact@v3
         with:
           name: cosign-signatures
-          path: build/*.sig
+          path: |
+            build/*.sig
+            build/*.crt
 
   release:
     name: Create Release
