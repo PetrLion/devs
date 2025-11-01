@@ -3,14 +3,9 @@
 ## 🚀 Швидкий старт
 
 ```bash
-# Створити три гілки (dev, stage, main)
-./setup-branches.sh
-
 # Зібрати проект
 make build
 ```
-
-Детальні інструкції: [SETUP.md](SETUP.md) | [QUICK_START.md](QUICK_START.md)
 
 ## Опис
 
@@ -31,13 +26,7 @@ make build
 
 ### 2) Гілки та політики
 
-**Швидке налаштування гілок:**
-```bash
-# Запустіть скрипт для автоматичного створення гілок
-./setup-branches.sh
-```
-
-Або вручну створити гілки: `dev`, `stage`, `main`.
+Репозиторій має три гілки: `dev`, `stage`, `main`.
 
 **Branch protection для `main`:**
 - Увімкнути Branch protection для `main`:
