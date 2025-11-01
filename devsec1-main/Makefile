@@ -1,8 +1,10 @@
 APP_NAME := scan-app
 VERSION ?= $(or $(GITHUB_REF_NAME),1.0.0)
+# Sanitize VERSION to replace slashes with dashes for valid filenames
+SAFE_VERSION := $(subst /,-,$(VERSION))
 DIST_DIR := dist
 SRC_DIR := src
-ARTIFACT := $(DIST_DIR)/$(APP_NAME)-$(VERSION).zip
+ARTIFACT := $(DIST_DIR)/$(APP_NAME)-$(SAFE_VERSION).zip
 
 .PHONY: all clean build sbom
 
