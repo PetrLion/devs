@@ -148,11 +148,11 @@ jobs:
             artifacts/cosign-certificates/*
           body: |
             ## Release ${{ github.ref_name }} - DevSecOps Demo
-            
+
             - ✅ Build artifacts (signed)
             - 📋 SBOM (CycloneDX JSON)
             - 🔐 Cosign signatures & certificates
-            
+
             ### Security Checks:
             - ✅ Scorecard results
             - ✅ Grype vulnerability scan
