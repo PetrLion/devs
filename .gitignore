@@ -1,0 +1,36 @@
+# Build artifacts
+build/
+dist/
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# SBOM and security scan results
+sbom.json
+*.sarif
+results.sarif
+grype-results.sarif
+
+# Cosign signatures
+*.sig
+*.crt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,3 @@
+opencv-python==4.8.1.78
+PyMySQL==1.1.0
+requests==2.31.0
