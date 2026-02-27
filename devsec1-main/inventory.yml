@@ -1,0 +1,30 @@
+---
+# GNS3 Lab Device Inventory
+# Adapt host addresses to match your GNS3 topology
+
+devices:
+  - name: Router-Main
+    host: 192.168.1.1
+    role: main
+    device_type: cisco_ios
+    username: admin
+    password: cisco123
+
+  - name: Router-User
+    host: 192.168.1.2
+    role: user
+    device_type: cisco_ios
+    username: admin
+    password: cisco123
+
+  - name: Router-Attacker
+    host: 192.168.1.3
+    role: attacker
+    device_type: cisco_ios
+    username: admin
+    password: cisco123
+
+# Network used to build ACL blocking rules
+attacker_network: "192.168.1.3"
+attacker_wildcard: "0.0.0.0"
+protected_interface: "GigabitEthernet0/0"
