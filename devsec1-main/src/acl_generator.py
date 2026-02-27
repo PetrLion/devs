@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-acl_generator.py — Jinja2-based ACL configuration generator for Cisco IOS.
+acl_generator.py — Генератор конфігурацій ACL на основі шаблонів Jinja2 для Cisco IOS.
 
-Reads attacker/network data from inventory.yml, renders the Jinja2 template
-in templates/acl_block.j2 and saves the result to configs/<device_name>_acl.cfg.
-Optionally pushes the generated config to the device via SSH (--apply flag).
+Зчитує дані про зловмисника/мережу з inventory.yml, відтворює шаблон Jinja2
+з templates/acl_block.j2 та зберігає результат у configs/<device_name>_acl.cfg.
+За потреби застосовує згенеровану конфігурацію до пристрою через SSH (прапор --apply).
 
-Usage:
+Використання:
     python3 acl_generator.py [--inventory inventory.yml] [--templates templates/] [--apply]
 """
 
@@ -34,11 +34,11 @@ def render_acl(template_dir: str, context: dict) -> str:
 
 
 def apply_config(device: dict, config_text: str) -> None:
-    """Push the generated config lines to the device via netmiko."""
+    """Надіслати згенеровані рядки конфігурації на пристрій через netmiko."""
     try:
         from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
     except ImportError:
-        print("  [ERROR] netmiko is not installed. Run: pip install netmiko", file=sys.stderr)
+        print("  [ПОМИЛКА] netmiko не встановлено. Виконайте: pip install netmiko", file=sys.stderr)
         return
 
     conn_params = {
@@ -55,17 +55,17 @@ def apply_config(device: dict, config_text: str) -> None:
     try:
         with ConnectHandler(**conn_params) as conn:
             output = conn.send_config_set(config_lines)
-            print(f"  [+] Config pushed to {device['name']}:\n{output}")
+            print(f"  [+] Конфігурацію надіслано на {device['name']}:\n{output}")
     except Exception as exc:
-        print(f"  [ERROR] Failed to push config to {device['name']}: {exc}", file=sys.stderr)
+        print(f"  [ПОМИЛКА] Не вдалось надіслати конфігурацію на {device['name']}: {exc}", file=sys.stderr)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate Cisco IOS ACL configs from Jinja2 templates")
-    parser.add_argument("--inventory", default="inventory.yml", help="Path to inventory YAML file")
-    parser.add_argument("--templates", default="templates", help="Directory containing Jinja2 templates")
-    parser.add_argument("--output-dir", default="configs", help="Directory for generated config files")
-    parser.add_argument("--apply", action="store_true", help="Push generated config to devices via SSH")
+    parser = argparse.ArgumentParser(description="Генерація конфігурацій ACL для Cisco IOS на основі шаблонів Jinja2")
+    parser.add_argument("--inventory", default="inventory.yml", help="Шлях до файлу інвентаризації YAML")
+    parser.add_argument("--templates", default="templates", help="Директорія з шаблонами Jinja2")
+    parser.add_argument("--output-dir", default="configs", help="Директорія для збережених конфігурацій")
+    parser.add_argument("--apply", action="store_true", help="Застосувати згенеровану конфігурацію на пристрої через SSH")
     args = parser.parse_args()
 
     inventory = load_inventory(args.inventory)
@@ -79,7 +79,7 @@ def main() -> None:
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    print(f"[*] Rendering ACL template for {len(devices)} device(s) …")
+    print(f"[*] Відтворення ACL-шаблону для {len(devices)} пристрій(ів) …")
     config_text = render_acl(args.templates, context)
 
     for device in devices:
@@ -87,13 +87,13 @@ def main() -> None:
             out_path = os.path.join(args.output_dir, f"{device['name']}_acl.cfg")
             with open(out_path, "w") as fh:
                 fh.write(config_text)
-            print(f"[+] Config saved: {out_path}")
+            print(f"[+] Конфігурацію збережено: {out_path}")
 
             if args.apply:
-                print(f"[*] Applying config to {device['name']} ({device['host']}) …")
+                print(f"[*] Застосування конфігурації на {device['name']} ({device['host']}) …")
                 apply_config(device, config_text)
 
-    print("[+] ACL generation complete.")
+    print("[+] Генерацію ACL завершено.")
 
 
 if __name__ == "__main__":

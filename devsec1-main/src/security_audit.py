@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-security_audit.py — Automated CIS Benchmark security audit for Cisco IOS devices.
+security_audit.py — Автоматизований аудит безпеки за стандартом CIS Benchmark для пристроїв Cisco IOS.
 
-Connects to each device in inventory.yml, runs a series of checks and
-reports findings with colour-coded severity labels.
+Підключається до кожного пристрою з inventory.yml, виконує серію перевірок та
+виводить результати з кольоровим кодуванням рівнів критичності.
 
-Usage:
+Використання:
     python3 security_audit.py [--inventory inventory.yml]
 """
 
@@ -14,7 +14,7 @@ import sys
 import yaml
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 
-# ANSI colour codes
+# ANSI-коди кольорів
 RED = "\033[91m"
 YELLOW = "\033[93m"
 GREEN = "\033[92m"
@@ -28,49 +28,49 @@ def load_inventory(path: str) -> dict:
 
 
 def check_telnet(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.1 — Telnet should be disabled on all VTY lines."""
+    """CIS 1.1 — Telnet має бути вимкнено на всіх лініях VTY."""
     if "transport input telnet" in output_run_all.lower():
-        return "CRITICAL", "Telnet is ENABLED on VTY lines (transport input telnet)"
+        return "CRITICAL", "Telnet УВІМКНЕНО на лініях VTY (transport input telnet)"
     if "transport input ssh" in output_run_all.lower():
-        return "PASS", "Only SSH allowed on VTY lines"
-    return "WARNING", "VTY transport input not explicitly configured"
+        return "PASS", "На лініях VTY дозволено лише SSH"
+    return "WARNING", "Параметр transport input на лініях VTY явно не налаштовано"
 
 
 def check_ssh_version(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.2 — SSH version 2 should be configured."""
+    """CIS 1.2 — Має бути налаштована версія SSH 2."""
     if "ip ssh version 2" in output_run_all.lower():
-        return "PASS", "SSH version 2 is configured"
+        return "PASS", "SSH версії 2 налаштовано"
     if "ip ssh version 1" in output_run_all.lower():
-        return "CRITICAL", "SSH version 1 is configured — upgrade to version 2"
-    return "WARNING", "SSH version not explicitly set to 2"
+        return "CRITICAL", "Налаштовано SSH версії 1 — оновіть до версії 2"
+    return "WARNING", "SSH версію явно не встановлено на 2"
 
 
 def check_password_encryption(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.3 — Service password-encryption should be enabled."""
+    """CIS 1.3 — Має бути увімкнено сервіс шифрування паролів."""
     if "service password-encryption" in output_run_all.lower():
-        return "PASS", "Password encryption service is enabled"
-    return "WARNING", "Password encryption is NOT enabled (service password-encryption missing)"
+        return "PASS", "Сервіс шифрування паролів увімкнено"
+    return "WARNING", "Сервіс шифрування паролів НЕ увімкнено (відсутній service password-encryption)"
 
 
 def check_login_banner(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.4 — A login banner (MOTD) should be present."""
+    """CIS 1.4 — Має бути присутній банер входу (MOTD)."""
     if "banner motd" in output_run_all.lower() or "banner login" in output_run_all.lower():
-        return "PASS", "Login banner is configured"
-    return "WARNING", "No login banner configured"
+        return "PASS", "Банер входу налаштовано"
+    return "WARNING", "Банер входу не налаштовано"
 
 
 def check_acl_on_vty(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.5 — VTY lines should have an access-class ACL applied."""
+    """CIS 1.5 — На лініях VTY має бути застосований ACL access-class."""
     if "access-class" in output_run_all.lower():
-        return "PASS", "ACL (access-class) applied on VTY lines"
-    return "WARNING", "No ACL applied on VTY lines"
+        return "PASS", "ACL (access-class) застосовано на лініях VTY"
+    return "WARNING", "ACL на лініях VTY не застосовано"
 
 
 def check_aaa(output_run_all: str) -> tuple[str, str]:
-    """CIS 1.6 — AAA new-model should be enabled."""
+    """CIS 1.6 — Має бути увімкнено AAA new-model."""
     if "aaa new-model" in output_run_all.lower():
-        return "PASS", "AAA new-model is enabled"
-    return "WARNING", "AAA new-model is NOT enabled"
+        return "PASS", "AAA new-model увімкнено"
+    return "WARNING", "AAA new-model НЕ увімкнено"
 
 
 CHECKS = [
@@ -108,13 +108,13 @@ def audit_device(device: dict) -> list[dict]:
                 results.append({"severity": severity, "message": message})
     except (NetmikoTimeoutException, NetmikoAuthenticationException) as exc:
         results.append({"severity": "CRITICAL",
-                        "message": f"Cannot connect to device: {exc}"})
+                        "message": f"Неможливо підключитись до пристрою: {exc}"})
     return results
 
 
 def print_device_report(device: dict, findings: list[dict]) -> None:
     print(f"\n{'='*60}")
-    print(f"  Device : {BOLD}{device['name']}{RESET} ({device['host']}) — role: {device.get('role', 'n/a')}")
+    print(f"  Пристрій: {BOLD}{device['name']}{RESET} ({device['host']}) — роль: {device.get('role', 'н/д')}")
     print(f"{'='*60}")
     for finding in findings:
         label = severity_label(finding["severity"])
@@ -122,27 +122,27 @@ def print_device_report(device: dict, findings: list[dict]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="CIS Benchmark security audit for Cisco IOS")
-    parser.add_argument("--inventory", default="inventory.yml", help="Path to inventory YAML file")
+    parser = argparse.ArgumentParser(description="Аудит безпеки CIS Benchmark для Cisco IOS")
+    parser.add_argument("--inventory", default="inventory.yml", help="Шлях до файлу інвентаризації YAML")
     args = parser.parse_args()
 
     inventory = load_inventory(args.inventory)
     devices = inventory.get("devices", [])
-    print(f"[*] Starting security audit for {len(devices)} device(s) …")
+    print(f"[*] Запуск аудиту безпеки для {len(devices)} пристрій(ів) …")
 
     overall_critical = 0
     for device in devices:
-        print(f"[*] Auditing {device['name']} ({device['host']}) …")
+        print(f"[*] Аудит {device['name']} ({device['host']}) …")
         findings = audit_device(device)
         print_device_report(device, findings)
         overall_critical += sum(1 for f in findings if f["severity"] == "CRITICAL")
 
     print(f"\n{'='*60}")
     if overall_critical:
-        print(f"{RED}{BOLD}  Audit complete: {overall_critical} CRITICAL finding(s) detected!{RESET}")
+        print(f"{RED}{BOLD}  Аудит завершено: виявлено {overall_critical} КРИТИЧНИХ порушень!{RESET}")
         sys.exit(1)
     else:
-        print(f"{GREEN}{BOLD}  Audit complete: no critical findings.{RESET}")
+        print(f"{GREEN}{BOLD}  Аудит завершено: критичних порушень не виявлено.{RESET}")
 
 
 if __name__ == "__main__":
