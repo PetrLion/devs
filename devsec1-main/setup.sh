@@ -123,8 +123,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
     python3 python3-pip python3-venv \
     git curl wget unzip openssh-client \
     sshpass expect net-tools iputils-ping \
-    wireshark-common tcpdump \
-    software-properties-common
+    wireshark-common tcpdump
+# software-properties-common потрібен лише на Ubuntu (для add-apt-repository / PPA)
+# На Parrot OS та Debian цей пакет недоступний — пропускаємо
+if is_ubuntu; then
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common
+fi
 ok "Базові пакети встановлено"
 
 # ============================================================
