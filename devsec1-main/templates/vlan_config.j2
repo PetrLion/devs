@@ -1,0 +1,42 @@
+! ============================================================
+! VLAN-конфігурація для пристрою {{ device.name }}
+! Згенеровано автоматично — deploy_configs.py
+! ============================================================
+!
+{% for vlan in vlans %}
+vlan {{ vlan.id }}
+ name {{ vlan.name }}
+!
+{% endfor %}
+!
+! --- SVI (Layer-3 інтерфейси) на Core / Distribution ---
+{% if device.role in ['core', 'distribution'] %}
+{% for vlan in vlans %}
+interface Vlan{{ vlan.id }}
+ description {{ vlan.description }}
+ ip address {{ vlan.gateway }} {{ vlan.mask }}
+ no shutdown
+!
+{% endfor %}
+{% endif %}
+!
+! --- Trunk-порти (до сусідніх комутаторів) ---
+{% for trunk_if in device.trunk_interfaces | default([]) %}
+interface {{ trunk_if }}
+ switchport mode trunk
+ switchport trunk allowed vlan {% for v in vlans %}{{ v.id }}{% if not loop.last %},{% endif %}{% endfor %}
+ spanning-tree portfast trunk
+!
+{% endfor %}
+!
+! --- Access-порти ---
+{% for acc in device.access_ports | default([]) %}
+interface {{ acc.interface }}
+ switchport mode access
+ switchport access vlan {{ acc.vlan_id }}
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+{% endfor %}
+!
+end

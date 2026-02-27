@@ -1,0 +1,36 @@
+! ============================================================
+! ACL для DMZ-зони  ({{ device.name }})
+! Блокує нелегітимний трафік від {{ attacker_network }}
+! Дозволяє лише HTTP/HTTPS/SMTP до DMZ-серверів
+! Згенеровано автоматично — deploy_configs.py
+! ============================================================
+!
+! --- ACL: Дозволяємо тільки легітимний трафік до DMZ ---
+ip access-list extended DMZ-INBOUND
+ remark Дозволити HTTP до веб-сервера
+ permit tcp any host 172.16.0.10 eq 80
+ remark Дозволити HTTPS до веб-сервера
+ permit tcp any host 172.16.0.10 eq 443
+ remark Дозволити SMTP до поштового сервера
+ permit tcp any host 172.16.0.11 eq 25
+ remark Дозволити IMAP до поштового сервера
+ permit tcp any host 172.16.0.11 eq 993
+ remark Заборонити решту трафіку до DMZ
+ deny   ip any 172.16.0.0 0.0.0.255
+ remark Дозволити весь інший трафік
+ permit ip any any
+!
+! --- ACL: Блокуємо зловмисника {{ attacker_network }} ---
+ip access-list extended BLOCK-ATTACKER
+ remark Заборонити трафік від зловмисника
+ deny   ip {{ attacker_network }} {{ attacker_wildcard }} any
+ remark Заборонити гостьовій VLAN доступ до серверів
+ deny   ip 10.0.60.0 0.0.0.255 10.0.50.0 0.0.0.255
+ remark Дозволити весь інший трафік
+ permit ip any any
+!
+interface {{ protected_interface }}
+ ip access-group BLOCK-ATTACKER in
+ ip access-group DMZ-INBOUND out
+!
+end

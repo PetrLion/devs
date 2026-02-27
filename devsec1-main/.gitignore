@@ -1,0 +1,14 @@
+# Generated config files (output of acl_generator.py)
+configs/
+
+# Generated topology maps
+topology.html
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artifacts
+dist/
+*.zip

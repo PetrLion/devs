@@ -1,0 +1,176 @@
+---
+# ============================================================
+# Інвентаризація пристроїв GNS3 — топологія середньої компанії
+# Адаптуйте адреси хостів відповідно до вашої топології GNS3.
+# Усі Console-портові адреси (host) — це Loopback-адреси GNS3,
+# які доступні через telnet/SSH з хост-машини.
+# ============================================================
+
+# ---------- Глобальні облікові дані (за замовчуванням) ----------
+default_credentials: &creds
+  username: admin
+  password: Cisco@123!
+
+devices:
+
+  # ── Периметр (WAN / Edge) ─────────────────────────────────
+  - name: R-EDGE
+    host: 192.168.122.10
+    role: edge
+    device_type: cisco_ios
+    <<: *creds
+    description: "Граничний маршрутизатор (WAN / NAT)"
+
+  - name: FW-ASA
+    host: 192.168.122.11
+    role: firewall
+    device_type: cisco_asa
+    <<: *creds
+    description: "Міжмережевий екран (ASA 9.x) — зони inside/outside/dmz"
+
+  # ── DMZ ───────────────────────────────────────────────────
+  - name: SRV-WEB
+    host: 192.168.122.20
+    role: dmz_server
+    device_type: linux
+    username: root
+    password: Cisco@123!
+    description: "Веб-сервер у DMZ (172.16.0.10)"
+
+  - name: SRV-MAIL
+    host: 192.168.122.21
+    role: dmz_server
+    device_type: linux
+    username: root
+    password: Cisco@123!
+    description: "Поштовий сервер у DMZ (172.16.0.11)"
+
+  # ── Ядро мережі (Core Layer) ──────────────────────────────
+  - name: SW-CORE-1
+    host: 192.168.122.30
+    role: core
+    device_type: cisco_ios
+    <<: *creds
+    description: "Core L3 switch #1 (10.0.0.1)"
+
+  - name: SW-CORE-2
+    host: 192.168.122.31
+    role: core
+    device_type: cisco_ios
+    <<: *creds
+    description: "Core L3 switch #2 (10.0.0.2) — резервування через HSRP"
+
+  # ── Рівень розподілу (Distribution Layer) ─────────────────
+  - name: SW-DIST-SALES
+    host: 192.168.122.40
+    role: distribution
+    device_type: cisco_ios
+    <<: *creds
+    description: "Distribution switch — відділ продажів (VLAN 30)"
+
+  - name: SW-DIST-IT
+    host: 192.168.122.41
+    role: distribution
+    device_type: cisco_ios
+    <<: *creds
+    description: "Distribution switch — ІТ-відділ (VLAN 40)"
+
+  - name: SW-DIST-HR
+    host: 192.168.122.42
+    role: distribution
+    device_type: cisco_ios
+    <<: *creds
+    description: "Distribution switch — відділ кадрів (VLAN 50)"
+
+  # ── Рівень доступу (Access Layer) ─────────────────────────
+  - name: SW-ACC-SALES
+    host: 192.168.122.50
+    role: access
+    device_type: cisco_ios
+    <<: *creds
+    description: "Access switch — поверх продажів"
+
+  - name: SW-ACC-IT
+    host: 192.168.122.51
+    role: access
+    device_type: cisco_ios
+    <<: *creds
+    description: "Access switch — серверна / ІТ"
+
+  - name: SW-ACC-HR
+    host: 192.168.122.52
+    role: access
+    device_type: cisco_ios
+    <<: *creds
+    description: "Access switch — поверх кадрів"
+
+  # ── Внутрішні сервери (Server Farm) ───────────────────────
+  - name: SRV-AD
+    host: 192.168.122.60
+    role: server
+    device_type: linux
+    username: root
+    password: Cisco@123!
+    description: "Active Directory / DNS сервер (10.0.50.10)"
+
+  - name: SRV-FILE
+    host: 192.168.122.61
+    role: server
+    device_type: linux
+    username: root
+    password: Cisco@123!
+    description: "Файловий сервер (10.0.50.11)"
+
+# ============================================================
+# VLAN-план
+# ============================================================
+vlans:
+  - id: 10
+    name: MGMT
+    network: "10.0.1.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.1.1"
+    description: "Управлінська VLAN"
+  - id: 20
+    name: SERVERS
+    network: "10.0.50.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.50.1"
+    description: "Серверна ферма"
+  - id: 30
+    name: SALES
+    network: "10.0.10.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.10.1"
+    description: "Відділ продажів"
+  - id: 40
+    name: IT
+    network: "10.0.20.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.20.1"
+    description: "ІТ-відділ"
+  - id: 50
+    name: HR
+    network: "10.0.30.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.30.1"
+    description: "Відділ кадрів"
+  - id: 60
+    name: GUEST
+    network: "10.0.60.0"
+    mask: "255.255.255.0"
+    gateway: "10.0.60.1"
+    description: "Гостьова WiFi"
+  - id: 70
+    name: DMZ
+    network: "172.16.0.0"
+    mask: "255.255.255.0"
+    gateway: "172.16.0.1"
+    description: "DMZ-зона"
+
+# ============================================================
+# Параметри для генератора ACL
+# ============================================================
+attacker_network: "10.0.60.0"
+attacker_wildcard: "0.0.0.255"
+protected_interface: "GigabitEthernet0/1"
