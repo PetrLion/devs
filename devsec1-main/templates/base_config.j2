@@ -1,0 +1,58 @@
+! ============================================================
+! Базова конфігурація пристрою {{ device.name }}
+! Згенеровано автоматично — deploy_configs.py
+! ============================================================
+!
+hostname {{ device.name }}
+!
+no ip domain-lookup
+ip domain-name company.local
+!
+! --- SSH v2 ---
+crypto key generate rsa modulus 2048
+ip ssh version 2
+ip ssh authentication-retries 3
+ip ssh time-out 60
+!
+! --- Локальний адміністратор ---
+username {{ device.username }} privilege 15 secret {{ device.password }}
+!
+! --- Сервіс шифрування паролів ---
+service password-encryption
+service timestamps log datetime msec
+service timestamps debug datetime msec
+no service udp-small-servers
+no service tcp-small-servers
+!
+! --- Банер ---
+banner motd ^
+*************************************************************
+*  УВАГА: Авторизований доступ! Всі дії реєструються.      *
+*  {{ device.name }} — {{ device.description }}             *
+*************************************************************
+^
+!
+! --- AAA ---
+aaa new-model
+aaa authentication login default local
+aaa authorization exec default local
+!
+! --- VTY (тільки SSH) ---
+line vty 0 15
+ transport input ssh
+ login authentication default
+ exec-timeout 10 0
+ logging synchronous
+!
+line con 0
+ exec-timeout 5 0
+ logging synchronous
+!
+! --- NTP ---
+ntp server 10.0.1.1
+!
+! --- Syslog ---
+logging host 10.0.1.254
+logging trap informational
+!
+end

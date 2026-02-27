@@ -1,0 +1,17 @@
+! ============================================================
+! OSPF-конфігурація для пристрою {{ device.name }}
+! Згенеровано автоматично — deploy_configs.py
+! ============================================================
+!
+router ospf 1
+ router-id {{ device.router_id | default('0.0.0.0') }}
+ passive-interface default
+{% for active_if in device.ospf_active_interfaces | default([]) %}
+ no passive-interface {{ active_if }}
+{% endfor %}
+{% for network in ospf_networks | default([]) %}
+ network {{ network.prefix }} {{ network.wildcard }} area {{ network.area | default(0) }}
+{% endfor %}
+ auto-cost reference-bandwidth 1000
+!
+end
